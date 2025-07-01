@@ -1,6 +1,6 @@
 {
   "name": "@gltf-transform/cli",
-  "version": "4.2.0",
+  "version": "4.2.0-alpha",
   "repository": "github:donmccurdy/glTF-Transform",
   "homepage": "https://gltf-transform.dev/cli.html",
   "description": "CLI interface to glTF Transform",

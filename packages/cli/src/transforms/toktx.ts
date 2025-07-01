@@ -74,6 +74,8 @@ interface GlobalOptions {
 	 * Passing a string (glob) is deprecated; use a RegExp instead.
 	 */
 	slots?: RegExp | null;
+	/** Should generate mipmaps. Default: true.*/
+	mipmaps?: boolean;
 	/** Interpolation used for generating mipmaps. Default: 'lanczos4'. */
 	filter?: string;
 	filterScale?: number;
@@ -120,6 +122,7 @@ const GLOBAL_DEFAULTS: Omit<GlobalOptions, 'encoder' | 'mode'> = {
 	filterScale: 1,
 	pattern: null,
 	slots: null,
+	mipmaps: true,
 	// See: https://github.com/donmccurdy/glTF-Transform/pull/389#issuecomment-1089842185
 	jobs: 2 * NUM_CPUS,
 	cleanup: true,
@@ -319,14 +322,19 @@ function createParams(
 	options: ETC1SOptions | UASTCOptions,
 ): (string | number)[] {
 	const colorSpace = getTextureColorSpace(texture);
-	const params: (string | number)[] = ['--generate-mipmap'];
+	const params: (string | number)[] = [];
 
-	if (options.filter !== GLOBAL_DEFAULTS.filter) {
-		params.push('--mipmap-filter', options.filter!);
-	}
+	if (options.mipmaps ?? GLOBAL_DEFAULTS.mipmaps) {
 
-	if (options.filterScale !== GLOBAL_DEFAULTS.filterScale) {
-		params.push('--mipmap-filter-scale', options.filterScale!);
+		params.push('--generate-mipmap')
+		if (options.filter !== GLOBAL_DEFAULTS.filter) {
+			params.push('--mipmap-filter', options.filter!);
+		}
+
+		if (options.filterScale !== GLOBAL_DEFAULTS.filterScale) {
+			params.push('--mipmap-filter-scale', options.filterScale!);
+		}
+
 	}
 
 	// See: https://github.com/KhronosGroup/KTX-Software/issues/600
@@ -417,7 +425,7 @@ export async function checkKTXSoftware(logger: ILogger): Promise<string> {
 	if (!(await commandExists('ktx')) && !process.env.CI) {
 		throw new Error(
 			`Command "ktx" not found. Please install KTX-Software ${KTX_SOFTWARE_VERSION_MIN}+, ` +
-				'from:\n\nhttps://github.com/KhronosGroup/KTX-Software',
+			'from:\n\nhttps://github.com/KhronosGroup/KTX-Software',
 		);
 	}
 

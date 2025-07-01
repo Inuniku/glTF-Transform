@@ -352,6 +352,10 @@ commands or using the scripting API.
 		validator: Validator.BOOLEAN,
 		default: true,
 	})
+	.option('--skip-mipmap <bool>', '', {
+		validator: Validator.BOOLEAN,
+		default: false,
+	})
 	.action(async ({ args, options, logger }) => {
 		const opts = options as {
 			instance: boolean;
@@ -375,6 +379,7 @@ commands or using the scripting API.
 			joinNamed: boolean;
 			joinMeshes: boolean;
 			weld: boolean;
+			skipMipmap: boolean;
 		};
 
 		// Baseline transforms.
@@ -445,6 +450,7 @@ commands or using the scripting API.
 					rdo: true,
 					rdoLambda: 4,
 					limitInputPixels: options.limitInputPixels as boolean,
+					mipmaps: !options.skipMipmap
 				}),
 				toktx({
 					encoder,
@@ -452,6 +458,7 @@ commands or using the scripting API.
 					mode: Mode.ETC1S,
 					quality: 255,
 					limitInputPixels: options.limitInputPixels as boolean,
+					mipmaps: !options.skipMipmap
 				}),
 			);
 		} else if (opts.textureCompress !== false) {
@@ -1378,8 +1385,8 @@ normal maps and ETC1S for other textures, for example.`.trim(),
 	.option(
 		'--rdo-threshold <rdo_threshold>',
 		'Set endpoint and selector RDO quality threshold. Lower' +
-			' is higher quality but less quality per output bit (try 1.0-3.0).' +
-			' Overrides --quality.',
+		' is higher quality but less quality per output bit (try 1.0-3.0).' +
+		' Overrides --quality.',
 		{ validator: Validator.NUMBER, default: ETC1S_DEFAULTS.rdoThreshold },
 	)
 	.option(
@@ -1391,6 +1398,7 @@ normal maps and ETC1S for other textures, for example.`.trim(),
 		validator: Validator.NUMBER,
 		default: ETC1S_DEFAULTS.jobs,
 	})
+	.option('--mipmaps <value>', "", { validator: Validator.BOOLEAN, default: true })
 	.action(async ({ args, options, logger }) => {
 		const { default: encoder } = await import('sharp');
 		const mode = Mode.ETC1S;
@@ -1504,6 +1512,7 @@ for textures where the quality is sufficient.`.trim(),
 		validator: Validator.NUMBER,
 		default: UASTC_DEFAULTS.jobs,
 	})
+	.option('--mipmaps <value>', "", { validator: Validator.BOOLEAN, default: true })
 	.action(async ({ args, options, logger }) => {
 		const { default: encoder } = await import('sharp');
 		const mode = Mode.UASTC;
